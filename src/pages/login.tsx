@@ -5,20 +5,30 @@ import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
+import { useAuth } from "@/hooks/useAuth";
+
 
 const Login = () => {
-  const [username, setUsername] = useState("");
+  const { login, loading, error } = useAuth();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    console.log("Login attempted with:", { username, password });
+  const handleLogin = async () => {
+    if (!email || !password) {
+      return; // Add validation
+    }
+    await login(email, password);
   };
 
   const handleRegister = () => {
     navigate("/register");
   };
+
+  if (error) {
+    console.error("Login error:", error);
+  }
 
   return (
     <div className="login-container">
@@ -33,16 +43,22 @@ const Login = () => {
         <h1 className="login-heading">Welcome Back!</h1>
 
         <div className="space-y-6">
+          {error && (
+            <div style={{ color: 'red', padding: '10px', backgroundColor: '#fee', borderRadius: '4px' }}>
+              {error}
+            </div>
+          )}
+
           <div>
-            <label htmlFor="username" className="input-label">
-              Username
+            <label htmlFor="email" className="input-label">
+              Email
             </label>
             <Input
-              id="username"
-              type="text"
-              placeholder="Enter your username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              id="email"
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="input-field"
             />
           </div>
@@ -74,8 +90,10 @@ const Login = () => {
             </div>
           </div>
 
-          <Button onClick={handleLogin} className="login-button" size="lg">
-            Login
+          <Button onClick={handleLogin} className="login-button" size="lg"
+            disabled={loading}
+>
+            {loading ? "Logging in..." : "Login"}
           </Button>
 
           <div className="register-link">
