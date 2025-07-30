@@ -50,7 +50,7 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
         <div className="login-container">
             <div className="login-box">
                 <h1 className="login-heading">Register</h1>
-                <p className="login-description">Create a new account</p>
+                <p className="input-label">Create a new account</p>
                 <form onSubmit={handleRegister} className="space-y-6">
                     <div>
                         <label htmlFor="fullName" className="input-label">Full Name</label>
