@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Add this import
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,10 +13,12 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
         email: "",
         username: "",
         password: "",
-        confirmPassword: ""
+        confirmPassword: "",
+        userType: "Product Manager" // Default value
     });
     const [loading, setLoading] = useState(false);
     const { toast } = useToast();
+    const navigate = useNavigate();
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -25,13 +28,15 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
         }
         setLoading(true);
         // Supabase sign up with email and password
+        //Supabase fields:fullName(can be split into first and last name), email, username, password, userType
         const { error } = await supabase.auth.signUp({
             email: form.email,
             password: form.password,
             options: {
                 data: {
-                    full_name: form.fullName,
-                    username: form.username
+                    full_name: form.fullName, // Add full name to metadata
+                    username: form.username, // Add username to metadata
+                    user_type: form.userType // Add user type to metadata
                 }
             }
         });
@@ -41,8 +46,9 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
             toast({ title: "Registration failed", description: error.message, variant: "destructive" });
         } else {
             toast({ title: "Registration successful", description: "You can now log in." });
-            setForm({ fullName: "", email: "", username: "", password: "", confirmPassword: "" });
+            setForm({ fullName: "", email: "", username: "", password: "", confirmPassword: "", userType: "Product Manager" });
             if (onRegistered) onRegistered();
+            navigate("/login");
         }
     };
 
@@ -53,10 +59,25 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
                 <p className="input-label">Create a new account</p>
                 <form onSubmit={handleRegister} className="space-y-6">
                     <div>
+                        <label htmlFor="userType" className="input-label">User Type</label>
+                        <select
+                            id="userType"
+                            className="input-field w-full"
+                            value={form.userType}
+                            onChange={e => setForm({ ...form, userType: e.target.value })}
+                            required
+                        >
+                            <option>Product Manager</option>
+                            <option>Financial Analyst</option>
+                            <option>Sustainability Officer</option>
+                        </select>
+                    </div>
+                    <div>
                         <label htmlFor="fullName" className="input-label">Full Name</label>
                         <Input
                             id="fullName"
                             type="text"
+                            placeholder="Enter your full name"
                             value={form.fullName}
                             onChange={e => setForm({ ...form, fullName: e.target.value })}
                             required
@@ -67,6 +88,7 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
                         <Input
                             id="email"
                             type="email"
+                            placeholder="Enter your email"
                             value={form.email}
                             onChange={e => setForm({ ...form, email: e.target.value })}
                             required
@@ -76,6 +98,7 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
                         <label htmlFor="username" className="input-label">Username</label>
                         <Input
                             id="username"
+                            placeholder="Enter your username"
                             type="text"
                             value={form.username}
                             onChange={e => setForm({ ...form, username: e.target.value })}
@@ -87,6 +110,7 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
                         <Input
                             id="password"
                             type="password"
+                            placeholder="Enter your password"
                             value={form.password}
                             onChange={e => setForm({ ...form, password: e.target.value })}
                             required
@@ -97,6 +121,7 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
                         <Input
                             id="confirmPassword"
                             type="password"
+                            placeholder="Confirm your password"
                             value={form.confirmPassword}
                             onChange={e => setForm({ ...form, confirmPassword: e.target.value })}
                             required
