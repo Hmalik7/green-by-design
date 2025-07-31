@@ -15,7 +15,6 @@ import circuitBoard from "@/assets/circuit-board.jpg";
 import codeScreen from "@/assets/code-screen.jpg";
 import analyticsDashboard from "@/assets/analytics-dashboard.jpg";
 
-
 const cloudProviders = [
   { value: "aws", label: "Amazon Web Services (AWS)" },
   { value: "gcp", label: "Google Cloud Platform (GCP)" },
@@ -78,14 +77,14 @@ const Index = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Calculate carbon footprint for this submission
     const carbonResult = await calculateAWSCarbonFootprint(
       Number(formData.monthlySpend),
       formData.services,
       awsRegion || 'us-east-1' // Use configured region or default
     );
-    
+
     const newSubmission = {
       ...formData,
       id: Date.now(),
@@ -94,21 +93,21 @@ const Index = () => {
       region: awsRegion || 'us-east-1',
       isAWSConfigured: awsConfigured
     };
-    
+
     const updatedSubmissions = [...submissions, newSubmission];
     setSubmissions(updatedSubmissions);
-    
+
     // Update total carbon footprint
-    const totalCarbon = updatedSubmissions.reduce((sum, s) => 
+    const totalCarbon = updatedSubmissions.reduce((sum, s) =>
       sum + (s.carbonFootprint?.co2eTons || 0), 0
     );
     setTotalCarbonFootprint(totalCarbon);
-    
+
     toast({
       title: "Cloud Service Data Recorded!",
       description: `Added ${formData.provider} services with ${formatCarbonResult(carbonResult, carbonUnit)} impact`,
     });
-    
+
     // Reset form
     setFormData({
       organization: "",
@@ -122,7 +121,7 @@ const Index = () => {
 
 
   return (
-      <div className="p-6 space-y-8">
+    <div className="p-6 space-y-8">
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -133,11 +132,11 @@ const Index = () => {
         </div>
       </div>
 
-    <h2 className="text-2xl font-semibold text-blue-600">
+      <h2 className="text-2xl font-semibold text-blue-600">
 
-  👋 Hello World from Harsh1234 and Aaron and Darren!
+        👋 Hello World from Harsh1234 and Aaron and Darren!
 
-</h2>
+      </h2>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -177,7 +176,7 @@ const Index = () => {
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Carbon Impact</p>
                 <p className="text-3xl font-bold text-warning">
-                  {totalCarbonFootprint > 0 
+                  {totalCarbonFootprint > 0
                     ? formatCarbonResult({ co2eTons: totalCarbonFootprint, kilowattHours: 0, cost: 0 }, carbonUnit)
                     : "0 tons CO₂e"
                   }
@@ -339,7 +338,7 @@ const Index = () => {
                   id="organization"
                   placeholder="e.g., Acme Corporation"
                   value={formData.organization}
-                  onChange={(e) => setFormData({...formData, organization: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
                   required
                   className="h-12 text-base border-2 focus:border-primary/50 transition-colors"
                 />
@@ -347,7 +346,7 @@ const Index = () => {
 
               <div className="space-y-3">
                 <Label htmlFor="provider" className="text-base font-medium">Primary Cloud Provider</Label>
-                <Select value={formData.provider} onValueChange={(value) => setFormData({...formData, provider: value})} required>
+                <Select value={formData.provider} onValueChange={(value) => setFormData({ ...formData, provider: value })} required>
                   <SelectTrigger className="h-12 text-base border-2 focus:border-primary/50">
                     <SelectValue placeholder="Select your main cloud provider" />
                   </SelectTrigger>
@@ -363,7 +362,7 @@ const Index = () => {
 
               <div className="space-y-3">
                 <Label htmlFor="services" className="text-base font-medium">Service Categories</Label>
-                <Select value={formData.services} onValueChange={(value) => setFormData({...formData, services: value})} required>
+                <Select value={formData.services} onValueChange={(value) => setFormData({ ...formData, services: value })} required>
                   <SelectTrigger className="h-12 text-base border-2 focus:border-primary/50">
                     <SelectValue placeholder="Select primary service type" />
                   </SelectTrigger>
@@ -384,7 +383,7 @@ const Index = () => {
                   type="number"
                   placeholder="e.g., 5000"
                   value={formData.monthlySpend}
-                  onChange={(e) => setFormData({...formData, monthlySpend: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, monthlySpend: e.target.value })}
                   required
                   className="h-12 text-base border-2 focus:border-primary/50 transition-colors"
                 />
@@ -396,7 +395,7 @@ const Index = () => {
                   id="primaryUse"
                   placeholder="e.g., Web application hosting, Data analytics"
                   value={formData.primaryUse}
-                  onChange={(e) => setFormData({...formData, primaryUse: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, primaryUse: e.target.value })}
                   required
                   className="h-12 text-base border-2 focus:border-primary/50 transition-colors"
                 />
@@ -408,7 +407,7 @@ const Index = () => {
                   id="notes"
                   placeholder="Any additional details about your cloud infrastructure..."
                   value={formData.notes}
-                  onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   rows={4}
                   className="text-base border-2 focus:border-primary/50 transition-colors resize-none"
                 />
@@ -425,14 +424,14 @@ const Index = () => {
         <Card className="shadow-lg border-0 bg-gradient-to-br from-card to-muted/20 relative overflow-hidden">
           {/* Background Image */}
           <div className="absolute inset-0 -z-10">
-            <img 
-              src={analyticsDashboard} 
-              alt="Analytics dashboard" 
+            <img
+              src={analyticsDashboard}
+              alt="Analytics dashboard"
               className="w-full h-full object-cover opacity-5"
             />
             <div className="absolute inset-0 bg-gradient-to-br from-card/90 to-card/95"></div>
           </div>
-          
+
           <CardHeader className="bg-gradient-to-r from-success/5 to-primary/5 border-b">
             <CardTitle className="flex items-center gap-3 text-xl">
               <div className="p-2 rounded-full bg-gradient-to-br from-success to-primary">
@@ -451,12 +450,12 @@ const Index = () => {
                 <p className="text-muted-foreground text-lg mb-6">
                   Submit the form to see real-time data visualization
                 </p>
-                
+
                 {/* Preview Card */}
                 <div className="max-w-sm mx-auto p-4 rounded-lg bg-muted/30 border border-border/30">
-                  <img 
-                    src={codeScreen} 
-                    alt="Code preview" 
+                  <img
+                    src={codeScreen}
+                    alt="Code preview"
                     className="w-full h-24 object-cover rounded opacity-60"
                   />
                   <p className="text-xs text-muted-foreground mt-3">Data processing pipeline ready</p>
@@ -470,7 +469,7 @@ const Index = () => {
                     {submissions.length} Active
                   </Badge>
                 </div>
-                
+
                 {submissions.slice(-3).map((submission, index) => (
                   <div key={submission.id} className="p-6 bg-gradient-to-r from-background/80 to-muted/60 rounded-xl border border-muted hover:border-primary/30 transition-all duration-300 backdrop-blur-sm hover:shadow-lg">
                     <div className="flex items-start justify-between mb-3">
@@ -482,7 +481,7 @@ const Index = () => {
                         #{submissions.length - index}
                       </Badge>
                     </div>
-                    
+
                     <div className="grid grid-cols-2 gap-4 mb-3">
                       <div className="flex items-center gap-2 text-sm">
                         <Cloud className="w-4 h-4 text-primary" />
@@ -495,18 +494,18 @@ const Index = () => {
                         <span className="font-medium text-success">{formatCurrency(Number(submission.monthlySpend), currency)}/mo</span>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-2 text-sm mb-3">
                       <Leaf className="w-4 h-4 text-warning" />
                       <span className="text-muted-foreground">Carbon:</span>
                       <span className="font-medium text-warning">
-                        {submission.carbonFootprint 
+                        {submission.carbonFootprint
                           ? formatCarbonResult(submission.carbonFootprint, carbonUnit)
                           : "0 kg CO₂e"
                         }
                       </span>
                     </div>
-                    
+
                     <div className="text-xs text-muted-foreground flex items-center gap-2 flex-wrap">
                       <span>•</span>
                       <span>{submission.services}</span>
@@ -524,7 +523,7 @@ const Index = () => {
                     </div>
                   </div>
                 ))}
-                
+
                 {submissions.length > 3 && (
                   <div className="text-center pt-4">
                     <Button variant="outline" size="sm">
