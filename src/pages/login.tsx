@@ -5,22 +5,59 @@ import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/context/AuthContext";
+
 
 
 const Login = () => {
-  const { login, loading, error } = useAuth();
+  const { login, loading } = useAuth();
+  const navigate = useNavigate();
+
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = async () => {
+
+
+  const handleLogin = async (e: React.FormEvent) => {
+  console.log("handleLogin function called");
+    alert("login button clicked");
+
+  e.preventDefault();
+  setError(null); // clear any previous error
+
+  console.log("Email:", email);
+  console.log("Password:", password);
+
+  // Basic validation
     if (!email || !password) {
-      return; // Add validation
+      setError("Please fill in all fields");
+      return;
     }
-    await login(email, password);
-  };
+
+    if (!email.includes('@')) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
+  try {
+    const result = await login(email, password);
+    console.log("Login result:", result);
+
+    if (result && result.error) {
+      setError(result.error);
+      console.error("Login error:", result.error);
+    } else {
+      console.log("Login successful:", result);
+      navigate("/dashboard"); // ← This is missing in your version!
+    }
+  } catch (err) {
+    console.error("Unexpected error during login:", err);
+    setError(`Login failed: ${err instanceof Error ? err.message : "An unexpected error occurred"}`);
+  }
+};
 
   const handleRegister = () => {
     navigate("/register");
