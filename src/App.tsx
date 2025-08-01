@@ -2,10 +2,12 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ModernLayout } from "@/components/ModernLayout";
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import Login from "./pages/login";
 import Index from "./pages/Index";
+import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
+import { ModernLayout } from "./components/ModernLayout";
 
 const queryClient = new QueryClient();
 
@@ -15,16 +17,26 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <ModernLayout>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </ModernLayout>
+        <Routes>
+          {/* Public route without layout */}
+          <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+
+          {/* Index route */}
+          {/* Protected routes inside layout */}
+          <Route element={<ModernLayout> <Outlet /></ModernLayout>}>
+            <Route path="/dashboard" element={<Index />} />
+            {/* Add more secured routes here */}
+          </Route>
+
+          {/* Catch-all */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
+
 
 export default App;
