@@ -4,21 +4,68 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import "./login.css";
+
+import "./Login.css";
+import { useAuth } from "@/context/AuthContext";
+
 
 const Login = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const { login, loading } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    console.log("Login attempted with:", { username, password });
-  };
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+
+
+  const handleLogin = async (e: React.FormEvent) => {
+  console.log("handleLogin function called");
+    alert("login button clicked");
+
+  e.preventDefault();
+  setError(null); // clear any previous error
+
+  console.log("Email:", email);
+  console.log("Password:", password);
+
+  // Basic validation
+    if (!email || !password) {
+      setError("Please fill in all fields");
+      return;
+    }
+
+    if (!email.includes('@')) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
+  try {
+    const result = await login(email, password);
+    console.log("Login result:", result);
+
+    if (result && result.error) {
+      setError(result.error);
+      console.error("Login error:", result.error);
+    } else {
+      console.log("Login successful:", result);
+      navigate("/dashboard"); // ← This is missing in your version!
+    }
+  } catch (err) {
+    console.error("Unexpected error during login:", err);
+    setError(`Login failed: ${err instanceof Error ? err.message : "An unexpected error occurred"}`);
+  }
+};
 
   const handleRegister = () => {
     navigate("/register");
   };
+
+  if (error) {
+    console.error("Login error:", error);
+  }
 
   return (
     <div className="login-container">
@@ -33,16 +80,22 @@ const Login = () => {
         <h1 className="login-heading">Welcome Back!</h1>
 
         <div className="space-y-6">
+          {error && (
+            <div style={{ color: 'red', padding: '10px', backgroundColor: '#fee', borderRadius: '4px' }}>
+              {error}
+            </div>
+          )}
+
           <div>
-            <label htmlFor="username" className="input-label">
-              Username
+            <label htmlFor="email" className="input-label">
+              Email
             </label>
             <Input
-              id="username"
-              type="text"
-              placeholder="Enter your username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              id="email"
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="input-field"
             />
           </div>
@@ -74,8 +127,10 @@ const Login = () => {
             </div>
           </div>
 
-          <Button onClick={handleLogin} className="login-button" size="lg">
-            Login
+          <Button onClick={handleLogin} className="login-button" size="lg"
+            disabled={loading}
+>
+            {loading ? "Logging in..." : "Login"}
           </Button>
 
           <div className="register-link">
