@@ -10,11 +10,12 @@ import "./login.css";
 const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
     const [form, setForm] = useState({
         fullName: "",
+        companyName: "",
         email: "",
         username: "",
         password: "",
         confirmPassword: "",
-        userType: "Product Manager" // Default value
+        userPersona: "Product Manager" // Default value
     });
     const [loading, setLoading] = useState(false);
     const { toast } = useToast();
@@ -36,7 +37,7 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
                 data: {
                     full_name: form.fullName, // Add full name to metadata
                     username: form.username, // Add username to metadata
-                    user_type: form.userType // Add user type to metadata
+                    user_persona: form.userPersona // Add user type to metadata
                 }
             }
         });
@@ -46,7 +47,7 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
             toast({ title: "Registration failed", description: error.message, variant: "destructive" });
         } else {
             toast({ title: "Registration successful", description: "You can now log in." });
-            setForm({ fullName: "", email: "", username: "", password: "", confirmPassword: "", userType: "Product Manager" });
+            setForm({ fullName: "", companyName: "", email: "", username: "", password: "", confirmPassword: "", userPersona: "Product Manager" });
             if (onRegistered) onRegistered();
             navigate("/login");
         }
@@ -59,15 +60,16 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
                 <p className="input-label">Create a new account</p>
                 <form onSubmit={handleRegister} className="space-y-6">
                     <div>
-                        <label htmlFor="userType" className="input-label">User Type</label>
+                        <label htmlFor="userPersona" className="input-label">User Persona</label>
                         <select
-                            id="userType"
+                            id="userPersona"
                             className="input-field w-full"
-                            value={form.userType}
-                            onChange={e => setForm({ ...form, userType: e.target.value })}
+                            value={form.userPersona}
+                            onChange={e => setForm({ ...form, userPersona: e.target.value })}
                             required
                         >
                             <option>Product Manager</option>
+                            <option>Developer</option>
                             <option>Financial Analyst</option>
                             <option>Sustainability Officer</option>
                         </select>
@@ -80,6 +82,18 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
                             placeholder="Enter your full name"
                             value={form.fullName}
                             onChange={e => setForm({ ...form, fullName: e.target.value })}
+                            required
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="companyName" className="input-label">Company Name</label>
+                        <Input
+                            id="companyName"
+                            type="text"
+                            placeholder="Enter your company name"
+                            value={form.companyName}
+                            onChange={e => setForm({ ...form, companyName: e.target.value })}
                             required
                         />
                     </div>
