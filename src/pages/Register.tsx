@@ -9,7 +9,8 @@ import "./login.css";
 
 const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
     const [form, setForm] = useState({
-        fullName: "",
+        firstName: "",
+        lastName: "",
         companyName: "",
         email: "",
         username: "",
@@ -35,9 +36,13 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
             password: form.password,
             options: {
                 data: {
-                    full_name: form.fullName, // Add full name to metadata
+                    first_name: form.firstName, // Add first name to metadata
+                    last_name: form.lastName, // Add last name to metadata
+                    company_name: form.companyName, // Add company name to metadata
+                    email: form.email, // Add email to metadata
                     username: form.username, // Add username to metadata
-                    user_persona: form.userPersona // Add user type to metadata
+                    user_persona: form.userPersona, // Add user type to metadata
+                    password: form.password,
                 }
             }
         });
@@ -47,7 +52,7 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
             toast({ title: "Registration failed", description: error.message, variant: "destructive" });
         } else {
             toast({ title: "Registration successful", description: "You can now log in." });
-            setForm({ fullName: "", companyName: "", email: "", username: "", password: "", confirmPassword: "", userPersona: "Product Manager" });
+            setForm({ firstName: "", lastName: "", companyName: "", email: "", username: "", password: "", confirmPassword: "", userPersona: "Product Manager" });
             if (onRegistered) onRegistered();
             navigate("/login");
         }
@@ -75,13 +80,24 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
                         </select>
                     </div>
                     <div>
-                        <label htmlFor="fullName" className="input-label">Full Name</label>
+                        <label htmlFor="firstName" className="input-label">First Name</label>
                         <Input
-                            id="fullName"
+                            id="firstName"
                             type="text"
-                            placeholder="Enter your full name"
-                            value={form.fullName}
-                            onChange={e => setForm({ ...form, fullName: e.target.value })}
+                            placeholder="Enter your first name"
+                            value={form.firstName}
+                            onChange={e => setForm({ ...form, firstName: e.target.value })}
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="lastName" className="input-label">Last Name</label>
+                        <Input
+                            id="lastName"
+                            type="text"
+                            placeholder="Enter your last name"
+                            value={form.lastName}
+                            onChange={e => setForm({ ...form, lastName: e.target.value })}
                             required
                         />
                     </div>
