@@ -4,51 +4,66 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+
 import "./Login.css";
 import { useAuth } from "@/context/AuthContext";
 
 
 const Login = () => {
   const { login, isLoading } = useAuth();
-  const [emailOrUsername, setEmailOrUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null); // Local error state
   const navigate = useNavigate();
 
-  // Clear errors when user starts typing
-  useEffect(() => {
-    if (error) {
-      setError(null)
-    }
-  }, [email, password]);
 
-  const handleLogin = async () => {
-    // Basic validation
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+
+
+  const handleLogin = async (e: React.FormEvent) => {
+  console.log("handleLogin function called");
+    alert("login button clicked");
+
+  e.preventDefault();
+  setError(null); // clear any previous error
+
+  console.log("Email:", email);
+  console.log("Password:", password);
+
+  // Basic validation
     if (!email || !password) {
-      return; // AuthContext will handle validation errors
+      setError("Please fill in all fields");
+      return;
     }
 
-    setError(null); // Clear any previous errors
-
-    try {
-      const result = await login(email, password);
-
-      if (success) {
-        // Login successful - navigate to dashboard
-        console.log("Login successful, navigating to dashboard");
-        navigate("/dashboard");
-      }
-      // Errors are automatically handled by AuthContext and displayed via error state
-    } catch (err) {
-      console.error("Unexpected login error:", err);
-      // AuthContext should handle this, but just in case
+    if (!email.includes('@')) {
+      setError("Please enter a valid email address");
+      return;
     }
-  };
+
+  try {
+    const result = await login(email, password);
+    console.log("Login result:", result);
+
+    if (result && result.error) {
+      setError(result.error);
+      console.error("Login error:", result.error);
+    } else {
+      console.log("Login successful:", result);
+      navigate("/dashboard"); // ← This is missing in your version!
+    }
+  } catch (err) {
+    console.error("Unexpected error during login:", err);
+    setError(`Login failed: ${err instanceof Error ? err.message : "An unexpected error occurred"}`);
+  }
+};
+
 
   const handleRegister = () => {
     navigate("/register");
   };
+
 
   // Handle Enter key press
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -74,6 +89,7 @@ const Login = () => {
     }
     return error;
   };
+
 
   return (
     <div className="login-container">
@@ -104,17 +120,25 @@ const Login = () => {
         )}
 
         <div className="space-y-6">
+          {error && (
+            <div style={{ color: 'red', padding: '10px', backgroundColor: '#fee', borderRadius: '4px' }}>
+              {error}
+            </div>
+          )}
+
           <div>
-            <label htmlFor="emailOrUsername" className="input-label">
-              Email or Username
+
+            <label htmlFor="email" className="input-label">
+              Email
             </label>
             <Input
-              id="emailOrUsername"
-              type="text"
-              placeholder="Enter your email or username"
-              value={emailOrUsername}
-              onChange={(e) => setEmailOrUsername(e.target.value)}
+              id="email"
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               onKeyPress={handleKeyPress}
+
               className="input-field"
               disabled={isLoading}
               autoComplete="username"
@@ -157,6 +181,7 @@ const Login = () => {
             </div>
           </div>
 
+
           <Button
             onClick={handleLogin}
             className="login-button"
@@ -168,6 +193,7 @@ const Login = () => {
             }}
           >
             {isLoading ? "Signing In..." : "Login"}
+
           </Button>
 
           <div className="register-link">

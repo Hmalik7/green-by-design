@@ -25,7 +25,6 @@ const App = () => (
           <Route element={<ModernLayout> <Outlet /></ModernLayout>}>
             <Route path="/dashboard" element={<Index />} />
             {/* Add more secured routes here */}
-
           </Route>
 
           {/* Catch-all */}

@@ -1,4 +1,5 @@
 // src/context/AuthContext.tsx
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 
@@ -193,3 +194,4 @@ export const useAuth = () => {
   }
   return context;
 };
+
