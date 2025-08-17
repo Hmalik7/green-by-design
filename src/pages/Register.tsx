@@ -5,9 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/context/AuthContext";
 import "./login.css";
 
+
 const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
+
     const [form, setForm] = useState({
         firstName: "",
         lastName: "",
@@ -21,40 +24,74 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
     const [loading, setLoading] = useState(false);
     const { toast } = useToast();
     const navigate = useNavigate();
+    const { register } = useAuth();
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
+        //Validate password match
         if (form.password !== form.confirmPassword) {
             toast({ title: "Passwords do not match", variant: "destructive" });
             return;
         }
+
+        // Basic validation
+        if (form.password.length < 6) {
+            toast({ title: "Password too short", description: "Password must be at least 6 characters", variant: "destructive" });
+            return;
+        }
+
         setLoading(true);
-        // Supabase sign up with email and password
-        //Supabase fields:fullName(can be split into first and last name), email, username, password, userType
-        const { error } = await supabase.auth.signUp({
-            email: form.email,
-            password: form.password,
-            options: {
-                data: {
-                    first_name: form.firstName, // Add first name to metadata
-                    last_name: form.lastName, // Add last name to metadata
-                    company_name: form.companyName, // Add company name to metadata
-                    email: form.email, // Add email to metadata
-                    username: form.username, // Add username to metadata
-                    user_persona: form.userPersona, // Add user type to metadata
-                    password: form.password,
-                }
+
+
+         try {
+            // Use the register function from auth context
+            const success = await register({
+                firstName: form.firstName,
+                lastName: form.lastName,
+                companyName: form.companyName,
+                email: form.email,
+                username: form.username,
+                password: form.password,
+                userPersona: form.userPersona
+            });
+
+            if (success) {
+                toast({
+                    title: "Registration successful",
+                    description: "You can now log in with your credentials."
+                });
+
+                // Reset form
+                setForm({
+                    firstName: "",
+                    lastName: "",
+                    companyName: "",
+                    email: "",
+                    username: "",
+                    password: "",
+                    confirmPassword: "",
+                    userPersona: "Product Manager"
+                });
+
+                if (onRegistered) onRegistered();
+                navigate("/login");
+            } else {
+                toast({
+                    title: "Registration failed",
+                    description: "Please check your information and try again",
+                    variant: "destructive"
+                });
             }
-        });
-        setLoading(false);
-        // Error handling
-        if (error) {
-            toast({ title: "Registration failed", description: error.message, variant: "destructive" });
-        } else {
-            toast({ title: "Registration successful", description: "You can now log in." });
-            setForm({ firstName: "", lastName: "", companyName: "", email: "", username: "", password: "", confirmPassword: "", userPersona: "Product Manager" });
-            if (onRegistered) onRegistered();
-            navigate("/login");
+
+        } catch (error) {
+            console.error('Registration error:', error);
+            toast({
+                title: "Network error",
+                description: "Please check your connection and try again",
+                variant: "destructive"
+            });
+        } finally {
+            setLoading(false);
         }
     };
 

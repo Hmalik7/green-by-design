@@ -9,29 +9,32 @@ import { useAuth } from "@/context/AuthContext";
 
 
 const Login = () => {
-  const { login, loading, error, clearError } = useAuth();
+  const { login, isLoading } = useAuth();
   const [emailOrUsername, setEmailOrUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null); // Local error state
   const navigate = useNavigate();
 
   // Clear errors when user starts typing
   useEffect(() => {
     if (error) {
-      clearError();
+      setError(null)
     }
-  }, [emailOrUsername, password, clearError]);
+  }, [email, password]);
 
   const handleLogin = async () => {
     // Basic validation
-    if (!emailOrUsername || !password) {
+    if (!email || !password) {
       return; // AuthContext will handle validation errors
     }
 
-    try {
-      const result = await login(emailOrUsername, password);
+    setError(null); // Clear any previous errors
 
-      if (!result.error) {
+    try {
+      const result = await login(email, password);
+
+      if (success) {
         // Login successful - navigate to dashboard
         console.log("Login successful, navigating to dashboard");
         navigate("/dashboard");
@@ -49,7 +52,7 @@ const Login = () => {
 
   // Handle Enter key press
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !loading && emailOrUsername && password) {
+    if (e.key === 'Enter' && !isLoading && email && password) {
       handleLogin();
     }
   };
@@ -113,7 +116,7 @@ const Login = () => {
               onChange={(e) => setEmailOrUsername(e.target.value)}
               onKeyPress={handleKeyPress}
               className="input-field"
-              disabled={loading}
+              disabled={isLoading}
               autoComplete="username"
             />
           </div>
@@ -131,17 +134,17 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyPress={handleKeyPress}
                 className="input-field"
-                disabled={loading}
+                disabled={isLoading}
                 autoComplete="current-password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="password-toggle"
-                disabled={loading}
+                disabled={isLoading}
                 style={{
-                  opacity: loading ? 0.5 : 1,
-                  cursor: loading ? 'not-allowed' : 'pointer'
+                  opacity: isLoading ? 0.5 : 1,
+                  cursor: isLoading ? 'not-allowed' : 'pointer'
                 }}
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
@@ -158,13 +161,13 @@ const Login = () => {
             onClick={handleLogin}
             className="login-button"
             size="lg"
-            disabled={loading || !emailOrUsername || !password}
+            disabled={isLoading || !email || !password}
             style={{
-              opacity: (loading || !emailOrUsername || !password) ? 0.6 : 1,
-              cursor: (loading || !emailOrUsername || !password) ? 'not-allowed' : 'pointer'
+              opacity: (isLoading || !email || !password) ? 0.6 : 1,
+              cursor: (isLoading || !email || !password) ? 'not-allowed' : 'pointer'
             }}
           >
-            {loading ? "Signing In..." : "Login"}
+            {isLoading ? "Signing In..." : "Login"}
           </Button>
 
           <div className="register-link">
@@ -172,10 +175,10 @@ const Login = () => {
               Don't have an account?{" "}
               <button
                 onClick={handleRegister}
-                disabled={loading}
+                disabled={isLoading}
                 style={{
-                  opacity: loading ? 0.5 : 1,
-                  cursor: loading ? 'not-allowed' : 'pointer'
+                  opacity: isLoading ? 0.5 : 1,
+                  cursor: isLoading ? 'not-allowed' : 'pointer'
                 }}
               >
                 Register
