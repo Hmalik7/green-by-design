@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
@@ -10,7 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 
 
 const Login = () => {
-  const { login, loading } = useAuth();
+  const { login, isLoading } = useAuth();
   const navigate = useNavigate();
 
 
@@ -59,13 +59,37 @@ const Login = () => {
   }
 };
 
+
   const handleRegister = () => {
     navigate("/register");
   };
 
-  if (error) {
-    console.error("Login error:", error);
-  }
+
+  // Handle Enter key press
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !isLoading && email && password) {
+      handleLogin();
+    }
+  };
+
+  // Format error messages for better UX
+  const getFormattedError = (error: string): string => {
+    if (error.includes("Invalid login credentials") || error.includes("Invalid password")) {
+      return "Invalid email/username or password. Please check your credentials.";
+    } else if (error.includes("Email not confirmed")) {
+      return "Please verify your email address before logging in.";
+    } else if (error.includes("Too many requests")) {
+      return "Too many login attempts. Please wait a moment and try again.";
+    } else if (error.includes("Username not found")) {
+      return "Username not found. Please check your credentials.";
+    } else if (error.includes("No account found")) {
+      return "No account found with this email/username.";
+    } else if (error.includes("account has been deactivated")) {
+      return "This account has been deactivated. Please contact support.";
+    }
+    return error;
+  };
+
 
   return (
     <div className="login-container">
@@ -79,6 +103,22 @@ const Login = () => {
 
         <h1 className="login-heading">Welcome Back!</h1>
 
+        {/* Error message display */}
+        {error && (
+          <div style={{
+            backgroundColor: '#fee2e2',
+            color: '#dc2626',
+            padding: '12px',
+            borderRadius: '6px',
+            marginBottom: '20px',
+            border: '1px solid #fecaca',
+            fontSize: '14px',
+            textAlign: 'center'
+          }}>
+            {getFormattedError(error)}
+          </div>
+        )}
+
         <div className="space-y-6">
           {error && (
             <div style={{ color: 'red', padding: '10px', backgroundColor: '#fee', borderRadius: '4px' }}>
@@ -87,6 +127,7 @@ const Login = () => {
           )}
 
           <div>
+
             <label htmlFor="email" className="input-label">
               Email
             </label>
@@ -96,7 +137,11 @@ const Login = () => {
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onKeyPress={handleKeyPress}
+
               className="input-field"
+              disabled={isLoading}
+              autoComplete="username"
             />
           </div>
 
@@ -111,12 +156,21 @@ const Login = () => {
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onKeyPress={handleKeyPress}
                 className="input-field"
+                disabled={isLoading}
+                autoComplete="current-password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="password-toggle"
+                disabled={isLoading}
+                style={{
+                  opacity: isLoading ? 0.5 : 1,
+                  cursor: isLoading ? 'not-allowed' : 'pointer'
+                }}
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
                   <EyeOff className="w-5 h-5" />
@@ -127,16 +181,34 @@ const Login = () => {
             </div>
           </div>
 
-          <Button onClick={handleLogin} className="login-button" size="lg"
-            disabled={loading}
->
-            {loading ? "Logging in..." : "Login"}
+
+          <Button
+            onClick={handleLogin}
+            className="login-button"
+            size="lg"
+            disabled={isLoading || !email || !password}
+            style={{
+              opacity: (isLoading || !email || !password) ? 0.6 : 1,
+              cursor: (isLoading || !email || !password) ? 'not-allowed' : 'pointer'
+            }}
+          >
+            {isLoading ? "Signing In..." : "Login"}
+
           </Button>
 
           <div className="register-link">
             <p>
               Don't have an account?{" "}
-              <button onClick={handleRegister}>Register</button>
+              <button
+                onClick={handleRegister}
+                disabled={isLoading}
+                style={{
+                  opacity: isLoading ? 0.5 : 1,
+                  cursor: isLoading ? 'not-allowed' : 'pointer'
+                }}
+              >
+                Register
+              </button>
             </p>
           </div>
         </div>
