@@ -1,0 +1,241 @@
+swagger: "2.0"
+
+info:
+  description: "Codecademy e-commerce REST API"
+  version: "1.0.0"
+  title: "E-commerce REST API"
+
+schemes: 
+  - http
+
+host: localhost:4000
+
+basePath: "/"
+
+paths:
+  /auth:
+    /login:
+      /post:
+        summary: "Login with email/password"
+        description: Login with email/password
+        produces:
+          - "User table and session data"
+        parameters:
+        responses:
+          200:
+            description: 200 Success
+          409:
+            description: 409 Conflict (User already exists)
+          500:
+            description: 500 Internal Server Error
+    /logout:
+      /post:
+        summary: "End session"
+        description: End session
+        responses:
+          200:
+            description: 200 Success
+          404:
+            description: 404 Not Found (User not found)
+          500:
+            description: Internal Server Error
+  /users:
+    /{userId}:
+      /get:
+        summary: "Get user profile (company, persona, role)"
+        description: Get user profile (company, persona, role)
+        produces:
+          - "application/json"
+        responses:
+          200:
+            description: 200 Success
+            schema:
+              type: object
+          404:
+            description: 404 Not Found (User not found)
+          500:
+            description: 500 Internal Server Error
+        
+        /services:
+          summary: "services a user has access to"
+          description: services a user has access to
+          responses:
+            200:
+              description: 200 Success
+            404:
+              description: 404 Not Found (User not found)
+            500:
+              description: 500 Internal Server Error
+
+          /{serviceId}:
+            /post:
+              summary: "assign service to user"
+              description: assign service to user
+              parameters:
+                - "application/json"
+              responses:
+                200:
+                  description: 200 Success
+                400:
+                  description: 400 Bad Request (Invalid specification of new service in JSON)
+                500:
+                  description: 500 Internal Server Error
+            /delete:
+              summary: "remove service from user"
+              description: remove service from user
+              responses:
+                200:
+                  description: 200 Success
+                404:
+                  description: 404 Not Found (Service to remove not found)
+                500:
+                  description: Internal Server Error
+
+      /put:
+        summary: "update role/persona/company"
+        description: update role/persona/company
+        parameters:
+          - Role: The role to update the user with (optional)
+          - Persona: The persona to update the company with (optional)
+          - Company: The company to update the user with (optional)
+        responses:
+          200:
+            description: 200 Success
+          404:
+            description: 404 Not Found (User Not Found)
+          500:
+            description: 500 Internal Server Error
+
+    /get:
+      summary: "Lists users (filter by company or role)"
+      description: lists users (filter by company or role)
+      responses:
+        200:
+          description: 200 Success
+        500:
+          description: 500 Internal Server Error
+  /cloud-services:
+    /get:
+      summary: "list all services (filter by provider, type, region)"
+      description: list all services (filter by provider, type, region)
+      parameters:
+        - Provider: provider to filter results by
+        - Type: type to filter results by
+        - Region: region to filter results by
+      
+      responses:
+        200:
+          description: 200 Success
+        400:
+          description: 400 Bad Request (Filters applied incorrecty)
+        500:
+          description: 500 Internal Server Error
+    /post:
+      summary: "add new service"
+      description: add new service
+      responses:
+        200:
+          description: 200 Success
+        400:
+          description: 400 Bad Request (Service body structured improperly)  
+        500:
+          description: 500 Internal Server Error
+    /{id}:
+      /get:
+        summary: "details of a single cloud service"
+        description: details of a single clouod service
+        responses:
+          200:
+            description: 200 Success
+          404:
+            description: 404 Not Found (Service with ID not found)
+          500:
+            description: 500 Internal Server Error
+      /put:
+        summary: "update service details (e.g., instance family, usage)"
+        description: update service details (e.g., instance family, usage)
+        parameters:
+          - Instance family: instance family to update service with
+          - Usage: usage to update service with
+        responses:
+          200:
+            description: 200 Success
+          404:
+            description: 404 Not Found (Service to update not found)
+          500:
+            description: 500 Internal Server Error
+      /delete:
+        summary: "remove service"
+        description: remove service
+        responses: 
+          200:
+            description: 200 Success
+          404:
+            description: 404 Not Found (Service to delete not found)
+          500:
+            description: 500 Internal Server Error
+      /usage:
+        /get:
+          summary: "usage stats (instances, GB, vCPU)"
+          description: usage stats (instances, GB, vCPU)
+          responses:
+            200:
+              description: 200 Success
+            404:
+              description: 404 Not Found (Cloud service not found)
+            500:
+              description: 500 Internal Server Error
+  /reports:
+    /costs:
+      /get:
+        summary: "cost breakdown by provider, service, or company"
+        description: cost breakdown by provider, service, or company
+        reponses:
+          200:
+            description: 200 Success
+          500:
+            description: 500 Internal Server Error
+    /reports:
+      /reccomendations:
+        /get:
+          summary: "sustainability/optimization suggestions"
+          description: sustainability/optimization suggestions
+          responses:
+            200:
+              description: 200 Success
+            500:
+              description: 500 Internal Server Error
+    /roles:
+      /get:
+        summary: "list roles and their priviliges"
+        description: list roles and their priviliges
+        reponses:
+          200:
+            description: 200 Success
+          500:
+            description: 500 Internal Server Error
+      /post:
+        summary: "create new role"
+        description: create new role
+        responses:
+          200:
+            description: 200 Success
+          400:
+            description: 400 Bad Request (Invalid specification for new role)
+          500:
+            description: 500 Internal Server Error
+      /{id}:
+        /put:
+          summary: "update priviliges for a role"
+          description: update privileges for a role
+          responses:
+            200:
+              description: 200 Success
+            404:
+              description: 404 Not Found (role to update not found)
+            500:
+              description: 500 Internal Server Error
+            
+          
+  
+      
