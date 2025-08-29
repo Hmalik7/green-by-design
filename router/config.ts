@@ -1,4 +1,4 @@
-module.exports = {
+export const config = {
   PORT: process.env.PORT,
   DB: {
     PGHOST: process.env.PGHOST,

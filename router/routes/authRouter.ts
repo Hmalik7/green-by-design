@@ -2,7 +2,7 @@ import express from 'express'
 const router = express.Router();
 
 
-module.exports = (app, passport) => {
+export const authRouter = (app, passport) => {
 
     app.use('/auth', router);
 

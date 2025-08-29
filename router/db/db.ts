@@ -1,5 +1,3 @@
-"use strict"
-
 const { Pool } = require('pg');
 const { DB } = require('../config');
 
@@ -11,6 +9,6 @@ const pool = new Pool({
   port: DB.PGPORT
 });
 
-module.exports = {
+export const db = {
   query: (text: string, params: any[]) => pool.query(text, params)
 }

@@ -1,8 +1,8 @@
-const authRouter = require('./auth');
-const cloudServiceRouter = require('./cloud-services');
-const reportsRouter = require('./reports');
-const rolesRouter = require('./roles');
-const usersRouter = require('./users');
+const authRouter = require('./authRouter');
+const cloudServiceRouter = require('./cloud-servicesRouter');
+const reportsRouter = require('./reportsRouter');
+const rolesRouter = require('./rolesRouter');
+const usersRouter = require('./usersRouter');
 
 module.exports = (app, passport) => {
     authRouter(app, passport),

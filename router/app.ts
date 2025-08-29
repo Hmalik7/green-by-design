@@ -1,11 +1,10 @@
 import { start } from "repl";
 
-const express = require('express');
+import express from 'express';
+import { config } from './config';
+
 const app = express();
-
-const loaders = require('./loaders');
-
-const { PORT } = require('./config');
+const { PORT } = config;
 
 async function startServer() {
     app.listen(PORT, () => {
@@ -13,4 +12,4 @@ async function startServer() {
     })
 }
 
-startServer
+startServer();

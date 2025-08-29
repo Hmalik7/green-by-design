@@ -2,7 +2,7 @@ import express from 'express';
 const router = express.Router();
 
 
-module.exports = app => {
+export const usersRouter = app => {
 
     app.use('/users', router);
 
