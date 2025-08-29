@@ -15,30 +15,58 @@ export type CloudServiceData = {
     createdAt: Date
 }
 
-
 export class CloudServicesModel {
 
+    /**
+     * Retrieves all services.
+     * @returns {CloudServiceData[] | null} [Array of all cloud services, null on error]
+     */
     async getServices() {
         return;
     };
 
-    async getServiceById(id) {
+    /**
+     * Retrieves a service based on its id.
+     * @param {UUID} serviceId [User Id] 
+     * @returns {CloudServiceData | null} [Service data, null on error]
+     */
+    async getServiceById(serviceId: UUID) {
         return;
     };
 
-    async createService() {
+    /**
+     * Creates a service.
+     * @param {CloudServiceData} serviceData [Service Data] 
+     * @returns {Object | null} [Created service record]
+     */
+    async createService(serviceData: CloudServiceData) {
         return;
     };
 
-    async updateServiceById(id) {
+    /**
+     * Update a service based on data including an id.
+     * @param {CloudServiceData} serviceData [Service Data with id]
+     * @returns {CloudServiceData | null} [Updated service data, null on error]
+     */
+    async updateServiceById(serviceData: CloudServiceData) {
         return;
     };
 
-    async deleteServiceById(id) {
+    /**
+     * Delete a service based on its id.
+     * @param {UUID} serviceId [Service Id] 
+     * @returns 
+     */
+    async deleteServiceById(serviceId: UUID) {
         return;
     };
 
-    async getUsageById(id) {
+    /**
+     * Retrieve the usage of a service based on its id.
+     * @param {UUID} serviceId [Service Id]
+     * @returns
+     */
+    async getUsageById(serviceId: UUID) {
         return;
     };
 }

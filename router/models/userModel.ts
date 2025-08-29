@@ -1,5 +1,6 @@
 import { UUID } from 'crypto';
 import { db } from '../db/db.ts'
+import { CloudServiceData } from './cloudServicesModel.ts';
 
 export type UserData = {
     userID: UUID;
@@ -14,30 +15,68 @@ export type UserData = {
 
 export class UserModel {
 
-    async create(data: UserData) {
+    /**
+     * Creates a user instance.
+     * @param {UserData} userData [User data]
+     * @returns {Object | null} [Created user record]
+     */
+    async create(userData: UserData) {
         return;
     };
 
+    /**
+     * Retrieves a user based on id.
+     * @param {UUID} userId [User Id]
+     * @returns {UserData | null} [User data, null on error]
+     */
     async getUserById(userId: UUID) {
         return;
     };
 
+    /**
+     * Retrieves a user's services based on their id.
+     * @param {UUID} userId [User Id] 
+     * @returns {CloudServiceData[] | null} [Array of service data, null on error]
+     */
     async getUserServices(userId: UUID) {
         return;
     };
 
+    /**
+     * Retreives a service on a user based on both of their ids.
+     * @param {UUID} userId [User Id] 
+     * @param {UUID} serviceId [Service Id]
+     * @returns {CloudServiceData | null} [Service data, null on error]
+     */
     async getUserServiceByIds(userId: UUID, serviceId: UUID) {
         return;
     };
 
-    async createUserServiceByIds(userId: UUID, serviceId: UUID) {
+    /**
+     * Assign a service to a user based on their ids.
+     * @param {UUID} userId [User Id]
+     * @param {UUID} serviceId [Service Id]
+     * @returns {CloudServiceData | null} [Service data, null on error]
+     */
+    async assignUserServiceByIds(userId: UUID, serviceId: UUID) {
         return;
     };
 
-    async deleteUserServiceByIds(userId: UUID, serviceId: UUID) {
+    /**
+     * Removes a service from a user based on their ids.
+     * @param {UUID} userId [User Id]
+     * @param {UUID} serviceId [Service Id] 
+     * @returns {CloudServiceData | null} [Service data from the removed service, null on error]
+     */
+    async removeUserServiceByIds(userId: UUID, serviceId: UUID) {
         return;
     };
 
+    /**
+     * Retrieves a user's privileges based on their id.
+     * @param {UUID} userId [User Id] 
+     * @returns
+     */
     async getPrivilegesById(userId: UUID) {
         return;
     };
