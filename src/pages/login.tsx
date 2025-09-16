@@ -6,11 +6,12 @@ import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
 import { useAuth } from "@/context/AuthContext";
+import { clear } from "console";
 
 
 const Login = () => {
-  const { login, isLoading } = useAuth();
-  const [emailOrUsername, setEmailOrUsername] = useState("");
+  const { login, isLoading, user, clearError} = useAuth();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null); // Local error state
@@ -19,9 +20,9 @@ const Login = () => {
   // Clear errors when user starts typing
   useEffect(() => {
     if (error) {
-      setError(null)
+      clearError();
     }
-  }, [email, password]);
+  }, [email, password, clearError]);
 
   const handleLogin = async () => {
     // Basic validation
@@ -34,9 +35,10 @@ const Login = () => {
     try {
       const result = await login(email, password);
 
-      if (success) {
+      if (result) {
         // Login successful - navigate to dashboard
         console.log("Login successful, navigating to dashboard");
+        console.log("User data:", user);
         navigate("/dashboard");
       }
       // Errors are automatically handled by AuthContext and displayed via error state
@@ -109,11 +111,11 @@ const Login = () => {
               Email or Username
             </label>
             <Input
-              id="emailOrUsername"
+              id="email"
               type="text"
-              placeholder="Enter your email or username"
-              value={emailOrUsername}
-              onChange={(e) => setEmailOrUsername(e.target.value)}
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               onKeyPress={handleKeyPress}
               className="input-field"
               disabled={isLoading}

@@ -1,18 +1,30 @@
 // src/context/AuthContext.tsx
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+let API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+if (!API_BASE_URL) {
+  console.warn("⚠️ VITE_API_BASE_URL not set. Falling back to http://localhost:8080");
+  API_BASE_URL = "http://localhost:8080";
+}
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+console.log("🔍 Using API_BASE_URL:", API_BASE_URL);
+
+//const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+console.log("🔍 Debug Info:");
+console.log("API_BASE_URL:", API_BASE_URL);
+console.log("Environment variables:", import.meta.env);
+console.log("VITE_API_BASE_URL:", import.meta.env.VITE_API_BASE_URL);
 
 interface User {
+  user_persona: string;
   id: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  companyName: string;
+  first_name: string;
+  last_name: string;
+  company_name: string;
   username: string;
-  userPersona: string;
+  password: string;
 }
 
 interface AuthContextType {
@@ -20,20 +32,23 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+   error: string | null;
   login: (email: string, password: string) => Promise<boolean>;
   register: (userData: RegisterData) => Promise<boolean>;
   logout: () => void;
   refreshToken: () => Promise<void>;
+  clearError: () => void;
 }
 
 interface RegisterData {
-  firstName: string;
-  lastName: string;
-  companyName: string;
+  user_persona: string;
+  first_name: string;
+  last_name: string;
+  company_name: string;
   email: string;
   username: string;
   password: string;
-  userPersona: string;
+  confirmPassword: string;
 }
 
 const AuthContext = React.createContext<AuthContextType | null>(null);
@@ -44,8 +59,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem('auth_token'));
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const isAuthenticated = !!user && !!token;
+
+  const clearError = () => setError(null);
+
 
   // Initialize auth state on app load
   useEffect(() => {
@@ -82,14 +101,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
+    setIsLoading(true);
+    setError(null);
+    console.log(JSON.stringify({ email, password }));
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+
+
+        body:JSON.stringify({ email, password })
       });
+      console.log("📥 Login response status:", response.status);
+      console.log("📥 Login response status text:", response.statusText);
+      console.log(response);
 
       if (response.ok) {
         const data = await response.json();
@@ -106,38 +134,75 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (error) {
       console.error('Login network error:', error);
+      setError('Login failed. Please try again later.');
       return false;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const register = async (userData: RegisterData): Promise<boolean> => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      });
+  setIsLoading(true);
+  setError(null);
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Registration successful:', data.message);
-        return true;
-      } else {
-        const errorData = await response.json();
-        console.error('Registration error:', errorData.message);
-        return false;
-      }
-    } catch (error) {
-      console.error('Registration network error:', error);
+  console.log("📡 Attempting register...");
+  console.log("API_BASE_URL:", API_BASE_URL);
+  console.log("Full URL:", `${API_BASE_URL}/api/auth/register`);
+  console.log("Payload:", userData);
+
+  try {
+    console.log("📡 Making fetch request...");
+    const { confirmPassword, ...payload } = userData;
+    const response = await fetch('http://localhost:8080/api/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+
+      body: JSON.stringify(payload),
+    });
+
+    console.log("📥 Response received:");
+    console.log("Status:", response.status);
+    console.log("Status Text:", response.statusText);
+    console.log("Headers:", Object.fromEntries(response.headers.entries()));
+
+    const data = await response.json();
+    console.log("📋 Response data:", data);
+
+    if (response.ok) {
+      console.log("✅ Registration successful");
+      return true;
+    } else {
+      console.log("❌ Registration failed with server error");
+      setError(data.message || 'Registration failed');
       return false;
     }
-  };
+  } catch (error) {
+    console.error("💥 Fetch error caught:");
+    console.error("Error type:", typeof error);
+    console.error("Error message:", error.message);
+    console.error("Full error:", error);
+
+    // Check specific error types
+    if (error instanceof TypeError) {
+      console.error("🌐 Network error - likely can't reach backend");
+      setError('Cannot connect to server. Is the backend running on port 8080?');
+    } else {
+      console.error("🔥 Unknown error type");
+      setError('Network error. Please check your connection.');
+    }
+
+    return false;
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const logout = () => {
     setUser(null);
     setToken(null);
+    setError(null);
     localStorage.removeItem('auth_token');
   };
 
@@ -174,10 +239,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         token,
         isAuthenticated,
         isLoading,
+        error,
         login,
         register,
         logout,
         refreshToken,
+        clearError,
       }}
     >
       {children}

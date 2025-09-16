@@ -6,11 +6,11 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user, loading } = useAuth();
+  const { user, isLoading } = useAuth();
   const location = useLocation();
 
   // Show loading spinner while checking authentication
-  if (loading) {
+  if (isLoading) {
     return (
       <div style={{
         display: 'flex',

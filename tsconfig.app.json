@@ -26,5 +26,5 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "server/src/utils/supabaseClient.ts", "server/src/routes"]
 }

@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import "./login.css";
 
@@ -12,14 +11,14 @@ import "./login.css";
 const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
 
     const [form, setForm] = useState({
-        firstName: "",
-        lastName: "",
-        companyName: "",
+        user_persona: "Product Manager", // Default value
+        first_name: "",
+        last_name: "",
+        company_name: "",
         email: "",
         username: "",
         password: "",
         confirmPassword: "",
-        userPersona: "Product Manager" // Default value
     });
     const [loading, setLoading] = useState(false);
     const { toast } = useToast();
@@ -46,13 +45,14 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
          try {
             // Use the register function from auth context
             const success = await register({
-                firstName: form.firstName,
-                lastName: form.lastName,
-                companyName: form.companyName,
+                user_persona: form.user_persona,
+                first_name: form.first_name,
+                last_name: form.last_name,
+                company_name: form.company_name,
                 email: form.email,
                 username: form.username,
                 password: form.password,
-                userPersona: form.userPersona
+                confirmPassword: form.confirmPassword
             });
 
             if (success) {
@@ -63,14 +63,15 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
 
                 // Reset form
                 setForm({
-                    firstName: "",
-                    lastName: "",
-                    companyName: "",
+                    user_persona: "Product Manager",
+                    first_name: "",
+                    last_name: "",
+                    company_name: "",
                     email: "",
                     username: "",
                     password: "",
                     confirmPassword: "",
-                    userPersona: "Product Manager"
+
                 });
 
                 if (onRegistered) onRegistered();
@@ -106,8 +107,8 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
                         <select
                             id="userPersona"
                             className="input-field w-full"
-                            value={form.userPersona}
-                            onChange={e => setForm({ ...form, userPersona: e.target.value })}
+                            value={form.user_persona}
+                            onChange={e => setForm({ ...form, user_persona: e.target.value })}
                             required
                         >
                             <option>Product Manager</option>
@@ -122,8 +123,8 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
                             id="firstName"
                             type="text"
                             placeholder="Enter your first name"
-                            value={form.firstName}
-                            onChange={e => setForm({ ...form, firstName: e.target.value })}
+                            value={form.first_name}
+                            onChange={e => setForm({ ...form, first_name: e.target.value })}
                             required
                         />
                     </div>
@@ -133,8 +134,8 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
                             id="lastName"
                             type="text"
                             placeholder="Enter your last name"
-                            value={form.lastName}
-                            onChange={e => setForm({ ...form, lastName: e.target.value })}
+                            value={form.last_name}
+                            onChange={e => setForm({ ...form, last_name: e.target.value })}
                             required
                         />
                     </div>
@@ -145,8 +146,8 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
                             id="companyName"
                             type="text"
                             placeholder="Enter your company name"
-                            value={form.companyName}
-                            onChange={e => setForm({ ...form, companyName: e.target.value })}
+                            value={form.company_name}
+                            onChange={e => setForm({ ...form, company_name: e.target.value })}
                             required
                         />
                     </div>
