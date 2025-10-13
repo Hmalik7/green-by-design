@@ -4,8 +4,8 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 let API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 if (!API_BASE_URL) {
-  console.warn("⚠️ VITE_API_BASE_URL not set. Falling back to http://localhost:8080");
-  API_BASE_URL = "http://localhost:8080";
+  console.warn("⚠️ VITE_API_BASE_URL not set. Falling back to http://localhost:8081");
+  API_BASE_URL = "http://localhost:8081";
 }
 
 console.log("🔍 Using API_BASE_URL:", API_BASE_URL);
@@ -130,11 +130,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } else {
         const errorData = await response.json();
         console.error('Login error:', errorData.message);
+        const errorMessage = errorData.message || 'Invalid login credentials';
+        setError(errorMessage);
         return false;
       }
     } catch (error) {
       console.error('Login network error:', error);
-      setError('Login failed. Please try again later.');
+  if (error instanceof TypeError && error.message.includes('fetch')) {
+        setError('Cannot connect to server. Please check your connection.');
+      } else {
+        setError('Login failed. Please try again later.');
+      }
       return false;
     } finally {
       setIsLoading(false);
@@ -153,7 +159,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   try {
     console.log("📡 Making fetch request...");
     const { confirmPassword, ...payload } = userData;
-    const response = await fetch('http://localhost:8080/api/auth/register', {
+    const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -187,12 +193,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Check specific error types
     if (error instanceof TypeError) {
       console.error("🌐 Network error - likely can't reach backend");
-      setError('Cannot connect to server. Is the backend running on port 8080?');
-    } else {
+    if (error instanceof TypeError) {
+        setError('Cannot connect to server. Is the backend running on port 8080?');
+      } else {
+        setError('Network error. Please check your connection.');
+      }
+      return false;    } else {
       console.error("🔥 Unknown error type");
       setError('Network error. Please check your connection.');
     }
-
     return false;
   } finally {
     setIsLoading(false);

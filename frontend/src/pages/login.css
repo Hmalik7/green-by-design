@@ -125,3 +125,117 @@
   color: #4ade80;
 }
 
+/* Slide-in animation for toast appearance */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Base toast container styles */
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 16px 20px;
+  border-radius: 8px;
+  border: 1px solid;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 300px;
+  max-width: 500px;
+  z-index: 9999;
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Success toast variant (green) */
+.toast-success {
+  background-color: #dcfce7;
+  border-color: #86efac;
+  color: #166534;
+}
+
+/* Error toast variant (red) */
+.toast-error {
+  background-color: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+/* Info toast variant (blue) */
+.toast-info {
+  background-color: #dbeafe;
+  border-color: #93c5fd;
+  color: #1e40af;
+}
+
+/* Toast icon styles */
+.toast-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+/* Toast message text */
+.toast-message {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Toast close button */
+.toast-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  opacity: 0.7;
+  font-size: 20px;
+  line-height: 1;
+  transition: opacity 0.2s ease;
+}
+
+/* Inherit color from parent toast */
+.toast-success .toast-close {
+  color: #166534;
+}
+
+.toast-error .toast-close {
+  color: #dc2626;
+}
+
+.toast-info .toast-close {
+  color: #1e40af;
+}
+
+/* Hover effect for close button */
+.toast-close:hover {
+  opacity: 1;
+}
+
+/* Focus styles for accessibility */
+.toast-close:focus {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 640px) {
+  .toast {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    min-width: auto;
+    max-width: none;
+  }
+}

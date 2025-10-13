@@ -194,39 +194,84 @@ console.log("Email validation result:", isValidEmail(email));
 // LOGIN ENDPOINT
 router.post("/login", async (req: Request, res: Response): Promise<void> => {
   console.log("🔑 Login endpoint hit");
+  console.log("📦 Request body:", req.body);
+
   const body = req.body as LoginRequestBody;
   const { email, password } = body;
 
+
+  console.log("🔍 Login attempt:");
+  console.log("  Email:", email);
+  console.log("  Password length:", password?.length);
+  console.log("  Password first 3 chars:", password?.substring(0, 3));
+
   try {
     if (!email || !password) {
-      res.status(400).json({ message: "Email/username and password are required" });
+      console.log("❌ Missing credentials");
+      res.status(400).json({ message: "Email and password are required" });
       return;
     }
 
-    // Find user by email OR username
-    const { data: user, error } = await supabase
+    console.log("🔍 Searching for user with email/username:", email);
+
+
+    // Find user by email
+    const { data: user, error: queryError } = await supabase
       .from("users")
       .select("*")
       .or(`email.eq.${email},username.eq.${email}`)
       .maybeSingle();
 
-    if (error || !user) {
-      console.log("❌ User not found");
+
+    console.log("📊 Database query result:");
+    console.log("  Query error:", queryError);
+    console.log("  User found:", !!user);
+
+    if (queryError) {
+      console.error("❌ Database query error:", queryError);
+      res.status(500).json({ message: "Database error" });
+      return;
+    }
+
+      if (!user) {
+      console.log("❌ User not found for email/username:", email);
       res.status(401).json({ message: "Invalid credentials" });
       return;
     }
 
     const userData = user as User;
 
+    console.log("👤 User details:");
+    console.log("  User ID:", userData.id);
+    console.log("  User email:", userData.email);
+    console.log("  User username:", userData.username);
+    console.log("  Stored password hash length:", userData.password?.length);
+    console.log("  Hash starts with:", userData.password?.substring(0, 10));
+
+    // Compare passwords
+    console.log("🔐 Comparing passwords...");
+    console.log("  Plain password:", password);
+    console.log("  Stored hash:", userData.password);
+
     // Compare passwords
     const isValid = await bcrypt.compare(password, userData.password);
-
+    console.log("  Password comparison result:", isValid);
     if (!isValid) {
-      console.log("❌ Invalid password");
+      console.log("❌ Invalid password for user:", userData.email);
+
+
+      // Additional debugging - test if password was hashed with same method
+      console.log("🧪 Debug: Testing password hash...");
+      const testHash = await bcrypt.hash(password, 10);
+      console.log("  Fresh hash of input password:", testHash);
+      const testCompare = await bcrypt.compare(password, testHash);
+      console.log("  Fresh hash comparison works:", testCompare);
+
       res.status(401).json({ message: "Invalid credentials" });
       return;
     }
 
+    console.log("🔑 Password valid, generating token...");
     const token = generateToken(userData.id);
     const { password: _, ...userWithoutPassword } = userData;
 
@@ -236,6 +281,44 @@ router.post("/login", async (req: Request, res: Response): Promise<void> => {
     console.error('💥 Login error:', err);
     const message = getErrorMessage(err);
     res.status(500).json({ message });
+  }
+});
+
+
+
+// Add this test endpoint to your auth.ts file
+router.get("/test-db", async (req: Request, res: Response): Promise<void> => {
+  try {
+    console.log("🧪 Testing database connection...");
+
+    // Test basic connection
+    const { data, error } = await supabase
+      .from("users")
+      .select("id, email, username")
+      .limit(1);
+
+    if (error) {
+      console.error("❌ Database connection failed:", error);
+      res.status(500).json({
+        message: "Database connection failed",
+        error: error.message
+      });
+      return;
+    }
+
+    console.log("✅ Database connection successful");
+    res.json({
+      message: "Database connection successful",
+      userCount: data?.length || 0,
+      sampleUser: data?.[0] ? {
+        id: data[0].id,
+        email: data[0].email,
+        username: data[0].username
+      } : null
+    });
+  } catch (err) {
+    console.error("💥 Database test error:", err);
+    res.status(500).json({ message: getErrorMessage(err) });
   }
 });
 
