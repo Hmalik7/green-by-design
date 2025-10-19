@@ -11,7 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@cloud-carbon-footprint/aws": "^0.16.0",
+    "@cloud-carbon-footprint/aws": "^0.8.0",
     "@cloud-carbon-footprint/common": "^0.0.1",
     "@cloud-carbon-footprint/core": "^0.8.0",
     "@hookform/resolvers": "^3.9.0",

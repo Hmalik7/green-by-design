@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Settings, Eye, EyeOff } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/lib/supabaseClient";
 
 interface AWSCredentials {
   accessKeyId: string;
@@ -152,7 +152,7 @@ export const AWSConfigForm = ({ onCredentialsUpdate }: AWSConfigFormProps) => {
           AWS Configuration
         </CardTitle>
         <CardDescription className="text-base">
-          {isConfigured 
+          {isConfigured
             ? "✅ Connected to AWS - Using real carbon footprint data"
             : "Configure AWS credentials for accurate carbon footprint calculations"
           }
@@ -203,8 +203,8 @@ export const AWSConfigForm = ({ onCredentialsUpdate }: AWSConfigFormProps) => {
             <Label htmlFor="region" className="text-base font-medium">
               AWS Region
             </Label>
-            <Select 
-              value={credentials.region} 
+            <Select
+              value={credentials.region}
               onValueChange={(value) => setCredentials({...credentials, region: value})}
             >
               <SelectTrigger className="h-12 text-base border-2 focus:border-primary/50">
@@ -221,16 +221,16 @@ export const AWSConfigForm = ({ onCredentialsUpdate }: AWSConfigFormProps) => {
           </div>
 
           <div className="flex gap-4">
-            <Button 
+            <Button
               onClick={handleSave}
               className="flex-1 h-12 text-base font-semibold"
               variant={isConfigured ? "outline" : "default"}
             >
               {isConfigured ? "Update Credentials" : "Save Credentials"}
             </Button>
-            
+
             {isConfigured && (
-              <Button 
+              <Button
                 onClick={handleClear}
                 variant="destructive"
                 className="h-12 text-base font-semibold"
@@ -242,7 +242,7 @@ export const AWSConfigForm = ({ onCredentialsUpdate }: AWSConfigFormProps) => {
 
           <div className="p-4 bg-muted/50 rounded-lg border border-muted-foreground/20">
             <p className="text-sm text-muted-foreground mb-2">
-              <strong>Security Note:</strong> Credentials are securely stored in your Supabase database. 
+              <strong>Security Note:</strong> Credentials are securely stored in your Supabase database.
               For production applications, consider using AWS IAM roles or a secure backend service.
             </p>
             <p className="text-xs text-muted-foreground">
