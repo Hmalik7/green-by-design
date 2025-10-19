@@ -4,7 +4,6 @@ import Login from "./pages/login";
 import Index from "./pages/Index";
 
 import { AuthProvider } from "./context/AuthContext";
-import ProtectedLayout from '@/pages/ProtectedLayout';
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import { ModernLayout } from "./components/ModernLayout";
