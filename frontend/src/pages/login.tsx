@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
 import { CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+
 import "./Login.css";
 import { useAuth } from "@/context/AuthContext";
 
@@ -64,111 +65,55 @@ const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
  * - Enter key support for form submission
  */
 const Login = () => {
-  const { login, isLoading, user, error: authError, clearError} = useAuth();
-
-    // Local state management
-  const [email, setEmail] = useState("");// Stores email/username input
-  const [password, setPassword] = useState("");// Stores password input
-  const [showPassword, setShowPassword] = useState(false);// Controls password visibility
-  const [error, setError] = useState<string | null>(null); // Local error state
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null); // Toast notification state
-
-  // Hook for programmatic navigation between routes
+  const { login, isLoading } = useAuth();
   const navigate = useNavigate();
 
 
-  /**
-   * Display a toast notification
-   * Replaces console.log calls with user-visible notifications
-   *
-   * @param message - The message to display
-   * @param type - Type of toast: 'success', 'error', or 'info'
-   */
-  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
-    console.log(message);
-    console.log(type);
-    setToast({ message, type });
-  };
-
-  /**
-   * Close the current toast notification
-   */
-  const closeToast = () => {
-    setToast(null);
-  };
-
-  /**
-   * Effect: Sync AuthContext errors with toast notifications
-   * Shows toast when AuthContext sets an error
-   */
-  useEffect(() => {
-    if (authError) {
-      showToast(getFormattedError(authError), 'error');
-    }
-  }, [authError]);
-
-  /**
-   * Effect: Clear errors when user starts typing
-   *
-   * This ensures that error messages disappear as soon as the user
-   * begins correcting their input, providing better UX
-   */
-  useEffect(() => {
-    if (error) {
-      clearError();
-    }
-    // Close error toast when user starts typing
-    if (toast && toast.type === 'error') {
-      closeToast();
-    }
-  }, [email, password, clearError]);// Triggers when email or password changes
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
 
-  /**
-   * Handle login form submission
-   *
-   * Process:
-   * 1. Validates that both fields are filled
-   * 2. Clears previous errors
-   * 3. Calls the login function from AuthContext
-   * 4. Navigates to dashboard on success
-   * 5. Errors are handled by AuthContext
-   */
-  const handleLogin = async () => {
-    // Basic validation
+
+  const handleLogin = async (e: React.FormEvent) => {
+  console.log("handleLogin function called");
+    alert("login button clicked");
+
+  e.preventDefault();
+  setError(null); // clear any previous error
+
+  console.log("Email:", email);
+  console.log("Password:", password);
+
+  // Basic validation
     if (!email || !password) {
-      showToast('Please enter both email/username and password', 'error');
-      return; // AuthContext will handle validation errors
+      setError("Please fill in all fields");
+      return;
     }
 
-    //setError(null); // Clear any previous errors
-
-    try {
-      // Attempt login with provided credentials
-      const result = await login(email, password);
-
-      if (result) {
-        // Login successful - navigate to dashboard
-        showToast("Login successful, navigating to dashboard");
-        console.log("Login successful, navigating to dashboard");
-        console.log("User data:", user);
-        setTimeout(() => {
-          navigate("/dashboard");
-        }, 3000);
-      } else {
-        // Login failed - show error toast instead of silent failure
-        showToast('Login failed. Please check your credentials.', 'error');
-      }
-      // Errors are automatically handled by AuthContext and displayed via error state
-    } catch (err) {
-      console.error("Unexpected login error:", err);
-      //const errorMessage = err?.message || 'An unexpected error occurred. Please try again.';
-      //showToast(getFormattedError(errorMessage), 'error');
-      showToast('An unexpected error occurred. Please try again.', 'error');
-
-      // AuthContext should handle this, but just in case
+    if (!email.includes('@')) {
+      setError("Please enter a valid email address");
+      return;
     }
-  };
+
+  try {
+    const result = await login(email, password);
+    console.log("Login result:", result);
+
+    if (result && result.error) {
+      setError(result.error);
+      console.error("Login error:", result.error);
+    } else {
+      console.log("Login successful:", result);
+      navigate("/dashboard"); // ← This is missing in your version!
+    }
+  } catch (err) {
+    console.error("Unexpected error during login:", err);
+    setError(`Login failed: ${err instanceof Error ? err.message : "An unexpected error occurred"}`);
+  }
+};
+
 
   /**
    * Navigate to registration page
@@ -177,12 +122,8 @@ const Login = () => {
     navigate("/register");
   };
 
-  /**
-   * Handle Enter key press for form submission
-   *
-   * Allows users to submit the form by pressing Enter
-   * Only works if form is valid and not currently loading
-   */
+
+  // Handle Enter key press
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !isLoading && email && password) {
       handleLogin();
@@ -215,7 +156,6 @@ const Login = () => {
     return error; // Return original error if no match found
   };
 
-  // Render the login form UI
   return (
     <>
     {/* Toast notification - rendered at top level for proper positioning */}
@@ -257,17 +197,25 @@ const Login = () => {
         )}
 
         <div className="space-y-6">
+          {error && (
+            <div style={{ color: 'red', padding: '10px', backgroundColor: '#fee', borderRadius: '4px' }}>
+              {error}
+            </div>
+          )}
+
           <div>
-            <label htmlFor="emailOrUsername" className="input-label">
-              Email or Username
+
+            <label htmlFor="email" className="input-label">
+              Email
             </label>
             <Input
               id="email"
-              type="text"
+              type="email"
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onKeyPress={handleKeyPress}
+
               className="input-field"
               disabled={isLoading}
               autoComplete="username"
@@ -312,7 +260,6 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Login button */}
           <Button
             onClick={handleLogin}
             className="login-button"
@@ -324,6 +271,7 @@ const Login = () => {
             }}
           >
             {isLoading ? "Signing In..." : "Login"}
+
           </Button>
 
           {/* Link to registration page */}
