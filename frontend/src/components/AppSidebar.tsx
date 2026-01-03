@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, BarChart3, Settings, Cloud, Leaf, Database, TrendingUp } from "lucide-react";
+import { BarChart3, Settings, Cloud, Leaf, Database, TrendingUp } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 
 import {
@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/sidebar";
 
 const navigation = [
-  { title: "Dashboard", url: "/", icon: Home },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Cloud Services", url: "/services", icon: Cloud },
   { title: "Carbon Tracking", url: "/carbon", icon: Leaf },

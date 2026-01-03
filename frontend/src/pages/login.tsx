@@ -1,62 +1,17 @@
-
 // Import necessary React hooks and components
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
-import { CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-import "./Login.css";
 import { useAuth } from "@/context/AuthContext";
-
-import toast from 'react-hot-toast';
-
-/**
- * Toast Component
- * Displays temporary notification messages with icons and auto-dismiss
- */
-interface ToastProps {
-  message: string;
-  type: 'success' | 'error' | 'info';
-  onClose: () => void;
-}
-
-const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
-  useEffect(() => {
-    const timer = setTimeout(onClose, 2000); // Auto-dismiss after 2 seconds
-    return () => clearTimeout(timer);
-  }, [onClose]);
-
-  // Map toast types to their corresponding icon components
-  const iconMap = {
-    success: CheckCircle2,
-    error: XCircle,
-    info: AlertCircle
-  };
-
-  const Icon = iconMap[type];
-
-  return (
-    <div className={`toast toast-${type}`}>
-      <Icon className="toast-icon" />
-      <span className="toast-message">{message}</span>
-      <button
-        onClick={onClose}
-        className="toast-close"
-        aria-label="Close notification"
-      >
-        ×
-      </button>
-    </div>
-  );
-};
+import { useToast } from "@/hooks/use-toast";
 
 /**
  * Login Component
  *
  * This component provides a user authentication interface with the following features:
- * - Email/username and password input fields
+ * - Username and password input fields
  * - Password visibility toggle
  * - Form validation
  * - Error handling and display
@@ -65,54 +20,42 @@ const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
  * - Enter key support for form submission
  */
 const Login = () => {
-  const { login, isLoading } = useAuth();
+  const { login, isLoading, error: authError, clearError } = useAuth();
   const navigate = useNavigate();
 
-
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-
-
   const handleLogin = async (e: React.FormEvent) => {
-  console.log("handleLogin function called");
-    alert("login button clicked");
+    e.preventDefault();
+    setError(null);
+    clearError();
 
-  e.preventDefault();
-  setError(null); // clear any previous error
-
-  console.log("Email:", email);
-  console.log("Password:", password);
-
-  // Basic validation
-    if (!email || !password) {
+    // Basic validation
+    if (!username || !password) {
       setError("Please fill in all fields");
       return;
     }
 
-    if (!email.includes('@')) {
-      setError("Please enter a valid email address");
-      return;
-    }
+    try {
+      const success = await login(username, password);
 
-  try {
-    const result = await login(email, password);
-    console.log("Login result:", result);
-
-    if (result && result.error) {
-      setError(result.error);
-      console.error("Login error:", result.error);
-    } else {
-      console.log("Login successful:", result);
-      navigate("/dashboard"); // ← This is missing in your version!
+      if (success) {
+        navigate("/dashboard");
+      } else {
+        // Error is set in the auth context, use it if available
+        if (authError) {
+          setError(authError);
+        } else {
+          setError("Invalid username or password");
+        }
+      }
+    } catch (err) {
+      setError(`Login failed: ${err instanceof Error ? err.message : "An unexpected error occurred"}`);
     }
-  } catch (err) {
-    console.error("Unexpected error during login:", err);
-    setError(`Login failed: ${err instanceof Error ? err.message : "An unexpected error occurred"}`);
-  }
-};
+  };
 
 
   /**
@@ -125,109 +68,64 @@ const Login = () => {
 
   // Handle Enter key press
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !isLoading && email && password) {
-      handleLogin();
+    if (e.key === 'Enter' && !isLoading && username && password) {
+      handleLogin(e as any);
     }
-  };
-
-  /**
-   * Format error messages for better user experience
-   *
-   * Transforms technical error messages from the backend
-   * into user-friendly messages that are easier to understand
-   *
-   * @param error - Raw error message from authentication service
-   * @returns User-friendly error message
-   */
-  const getFormattedError = (error: string): string => {
-    if (error.includes("Invalid login credentials") || error.includes("Invalid password")) {
-      return "Invalid email/username or password. Please check your credentials.";
-    } else if (error.includes("Email not confirmed")) {
-      return "Please verify your email address before logging in.";
-    } else if (error.includes("Too many requests")) {
-      return "Too many login attempts. Please wait a moment and try again.";
-    } else if (error.includes("Username not found")) {
-      return "Username not found. Please check your credentials.";
-    } else if (error.includes("No account found")) {
-      return "No account found with this email/username.";
-    } else if (error.includes("account has been deactivated")) {
-      return "This account has been deactivated. Please contact support.";
-    }
-    return error; // Return original error if no match found
   };
 
   return (
-    <>
-    {/* Toast notification - rendered at top level for proper positioning */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={closeToast}
-        />
-      )}
-
-    <div className="login-container">
-      <div className="login-box">
+    <div className="min-h-screen bg-black flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
         {/* Tab navigation between Login and Register */}
-        <div className="login-tabs">
-          <button className="login-tab-active">Login</button>
-          <button onClick={handleRegister} className="login-tab">
+        <div className="flex mb-8">
+          <button 
+            className="text-green-500 border-b-2 border-green-500 pb-2 px-4 font-medium"
+          >
+            Login
+          </button>
+          <button 
+            onClick={handleRegister}
+            className="text-gray-400 pb-2 px-4 ml-4 font-medium hover:text-white transition-colors"
+          >
             Register
           </button>
         </div>
 
         {/* Page heading */}
-        <h1 className="login-heading">Welcome Back!</h1>
+        <h1 className="text-2xl font-bold text-white mb-8">Welcome Back!</h1>
 
         {/* Error message display */}
         {error && (
-          <div style={{
-            backgroundColor: '#fee2e2',
-            color: '#dc2626',
-            padding: '12px',
-            borderRadius: '6px',
-            marginBottom: '20px',
-            border: '1px solid #fecaca',
-            fontSize: '14px',
-            textAlign: 'center'
-          }}>
-            {getFormattedError(error)}
+          <div className="bg-red-900/20 border border-red-500/50 text-red-400 px-4 py-3 rounded-md mb-6 text-sm text-center">
+            {error}
           </div>
         )}
 
-        <div className="space-y-6">
-          {error && (
-            <div style={{ color: 'red', padding: '10px', backgroundColor: '#fee', borderRadius: '4px' }}>
-              {error}
-            </div>
-          )}
-
+        <form onSubmit={handleLogin} className="space-y-6">
+          {/* Username input field */}
           <div>
-
-            <label htmlFor="email" className="input-label">
-              Email
+            <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
+              Username
             </label>
             <Input
-              id="email"
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="username"
+              type="text"
+              placeholder="Enter your username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               onKeyPress={handleKeyPress}
-
-              className="input-field"
+              className="w-full h-12 bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500"
               disabled={isLoading}
               autoComplete="username"
             />
           </div>
 
-            {/* Password input field with visibility toggle */}
+          {/* Password input field with visibility toggle */}
           <div>
-            <label htmlFor="password" className="input-label">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
               Password
             </label>
-            <div style={{ position: "relative" }}>
+            <div className="relative">
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
@@ -235,7 +133,7 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="input-field"
+                className="w-full h-12 bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 pr-10"
                 disabled={isLoading}
                 autoComplete="current-password"
               />
@@ -243,12 +141,8 @@ const Login = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="password-toggle"
                 disabled={isLoading}
-                style={{
-                  opacity: isLoading ? 0.5 : 1,
-                  cursor: isLoading ? 'not-allowed' : 'pointer'
-                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
@@ -261,39 +155,30 @@ const Login = () => {
           </div>
 
           <Button
-            onClick={handleLogin}
-            className="login-button"
-            size="lg"
-            disabled={isLoading || !email || !password}
-            style={{
-              opacity: (isLoading || !email || !password) ? 0.6 : 1,
-              cursor: (isLoading || !email || !password) ? 'not-allowed' : 'pointer'
-            }}
+            type="submit"
+            disabled={isLoading || !username || !password}
+            className="w-full h-12 bg-green-500 hover:bg-green-600 text-white font-semibold text-lg rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {isLoading ? "Signing In..." : "Login"}
-
           </Button>
 
           {/* Link to registration page */}
-          <div className="register-link">
-            <p>
+          <div className="text-center mt-6">
+            <p className="text-sm text-gray-400">
               Don't have an account?{" "}
               <button
+                type="button"
                 onClick={handleRegister}
                 disabled={isLoading}
-                style={{
-                  opacity: isLoading ? 0.5 : 1,
-                  cursor: isLoading ? 'not-allowed' : 'pointer'
-                }}
+                className="text-green-500 hover:text-green-400 underline transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Register
               </button>
             </p>
           </div>
-        </div>
+        </form>
       </div>
     </div>
-    </>
   );
 };
 

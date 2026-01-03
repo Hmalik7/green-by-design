@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
-import "./login.css";
 
 
 const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
@@ -23,7 +22,7 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
     const [loading, setLoading] = useState(false);
     const { toast } = useToast();
     const navigate = useNavigate();
-    const { register } = useAuth();
+    const { register, login } = useAuth();
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -58,24 +57,35 @@ const Register = ({ onRegistered }: { onRegistered?: () => void }) => {
             if (success) {
                 toast({
                     title: "Registration successful",
-                    description: "You can now log in with your credentials."
+                    description: "Logging you in..."
                 });
 
-                // Reset form
-                setForm({
-                    user_persona: "Product Manager",
-                    first_name: "",
-                    last_name: "",
-                    company_name: "",
-                    email: "",
-                    username: "",
-                    password: "",
-                    confirmPassword: "",
+                // Automatically log in the user after successful registration
+                const loginSuccess = await login(form.email, form.password);
+                
+                if (loginSuccess) {
+                    // Reset form
+                    setForm({
+                        user_persona: "Product Manager",
+                        first_name: "",
+                        last_name: "",
+                        company_name: "",
+                        email: "",
+                        username: "",
+                        password: "",
+                        confirmPassword: "",
+                    });
 
-                });
-
-                if (onRegistered) onRegistered();
-                navigate("/login");
+                    if (onRegistered) onRegistered();
+                    navigate("/dashboard");
+                } else {
+                    toast({
+                        title: "Registration successful",
+                        description: "Please log in with your credentials.",
+                        variant: "default"
+                    });
+                    navigate("/login");
+                }
             } else {
                 toast({
                     title: "Registration failed",
